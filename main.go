@@ -1,9 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math"
+	"os"
 	"sort"
+	"strconv"
+	"strings"
 )
 
 type Board [][]int
@@ -34,6 +38,31 @@ func (ep *EightPuzzle) Init(board, solution Board) {
 	ep.solution = solution
 	node.cost = ep.f(node)
 	ep.open = append(ep.open, node)
+}
+
+func GetInitialBoard() [][]int {
+	scanner := bufio.NewScanner(os.Stdin)
+	initialBoard := make(Board, 3)
+
+	for i := 0; i < 3; i++ {
+		initialBoard[i] = make([]int, 3)
+	}
+
+	for i := 0; i < 3; i++ {
+		fmt.Printf("Digite a %da linha do tabuleiro com os valores separados por espaço. Exemplo: 8 0 3 (use 0 para o espaço vazio)\n", i+1)
+		fmt.Printf(">> ")
+		scanner.Scan()
+		userInput := scanner.Text()
+		for j, input := range strings.Fields(userInput) {
+			p, err := strconv.Atoi(input)
+
+			if err == nil {
+				initialBoard[i][j] = p
+			}
+		}
+
+	}
+	return initialBoard
 }
 
 func (ep *EightPuzzle) f(node Node) float64 {
@@ -242,11 +271,7 @@ func main() {
 	}
 
 	var puzzle EightPuzzle
-	puzzle.Init(Board{
-		{0, 3, 2},
-		{1, 4, 6},
-		{8, 7, 5},
-	}, solution)
+	puzzle.Init(GetInitialBoard(), solution)
 
 	for !puzzle.isSolved() {
 		currentNode := puzzle.open[0]
