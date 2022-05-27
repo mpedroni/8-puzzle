@@ -13,9 +13,11 @@ import (
 type Board [][]int
 
 type EightPuzzle struct {
-	solution Board
-	open     []Node
-	closed   []Node
+	solution    Board
+	open        []Node
+	closed      []Node
+	openedNodes int
+	closedNodes int
 }
 
 type Node struct {
@@ -121,6 +123,7 @@ func (ep *EightPuzzle) isSolved() bool {
 func (ep *EightPuzzle) Close(node Node) {
 	ep.closed = append(ep.closed, node)
 	ep.open = ep.open[1:]
+	ep.closedNodes++
 
 	sort.SliceStable(ep.open, func(i, j int) bool {
 		return ep.open[i].cost < ep.open[j].cost
@@ -255,12 +258,14 @@ func (ep *EightPuzzle) PrintPath(n Node) {
 		ep.PrintPath(*n.parent)
 	}
 
+	fmt.Print("\n\n\n")
 	for _, row := range n.board {
 		fmt.Println(row)
 	}
+	fmt.Println()
 	fmt.Printf("g: %d\n", n.g)
 	fmt.Printf("h: %f\n", n.cost-float64(n.g))
-	fmt.Printf("f: %f\n\n", n.cost)
+	fmt.Printf("f: %f", n.cost)
 }
 
 func main() {
@@ -281,11 +286,16 @@ func main() {
 			if !puzzle.IsClosed(movement) {
 				movement.cost = puzzle.f(movement)
 				puzzle.open = append(puzzle.open, movement)
+				puzzle.openedNodes++
 			}
 		}
 
 		puzzle.Close(currentNode)
 	}
 
+	fmt.Print("\n\n")
 	puzzle.PrintPath(puzzle.closed[len(puzzle.closed)-1])
+	fmt.Print("\n\n")
+	fmt.Printf("Total de vértices abertos: %d\n", puzzle.openedNodes)
+	fmt.Printf("Total de vértices fechados: %d\n", puzzle.closedNodes)
 }
